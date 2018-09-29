@@ -1,0 +1,28 @@
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Intellij
+.idea/
+*.iml
+*.iws
+
+# Mac
+.DS_Store
+
+# Maven
+target/
+*.gz
+
+# Node
+node_modules/
+package-lock.json
+
+# Webpack Build
+build/
+
+# Go BlockChain
+src/blockChain.db
+src/blockChain.db.lock
+src/block.exe
