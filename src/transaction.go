@@ -5,7 +5,6 @@ import (
 	"encoding/gob"
 	"crypto/sha256"
 	"fmt"
-	"os"
 )
 
 const coinBaseReward = 12.5
@@ -67,15 +66,20 @@ func (tx *Transaction) IsCoinBaseTransaction() bool {
 }
 
 func NewTransaction(from, to string, amount float64, blockChain *BlockChain) *Transaction {
-	suitableUTXOArray, total := blockChain.FindSuitableUTXO(from, amount)
+	suitableUTXOMap, total := blockChain.FindSuitableUTXO(from, amount)
 
 	var inputArray []TXInput
 	var outputArray []TXOutput
 
-	for _, utxo := range suitableUTXOArray {
-		inputArray = append(inputArray, TXInput{
+	for txid, indexs := range suitableUTXOMap {
+		for _, index := range indexs {
+			inputArray = append(inputArray, TXInput{
+				[]byte(txid),
+				index,
+				from,
+			})
+		}
 
-		})
 	}
 
 	outputArray = append(outputArray, TXOutput{

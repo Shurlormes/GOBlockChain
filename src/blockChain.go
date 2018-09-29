@@ -170,24 +170,30 @@ func (blockChain *BlockChain) FindUTXO(address string) []*TXOutput {
 	return TXOutputArray
 }
 
-func (blockChain *BlockChain) FindSuitableUTXO(address string, amount float64) (map[string]int64, float64) {
-	var suitableUTXO = make(map[string]int64)
-	var total float64
-
+func (blockChain *BlockChain) FindSuitableUTXO(address string, amount float64) (map[string][]int64, float64) {
 	balance := blockChain.GetBalance(address)
 	if amount > balance {
 		fmt.Printf("No enough money at %s", address)
 		os.Exit(1)
 	}
 
+	var suitableUTXO = make(map[string][]int64)
+	var total float64
 
-	//transactions := blockChain.FindUTXOTransaction(address)
-	//for _, transaction := range transactions {
-	//	for index, output := range transaction.TXOutput {
-	//		if output.CanUnlockUTXOWith()
-	//	}
-	//} TODO
-
+	transactions := blockChain.FindUTXOTransaction(address)
+	FIND:
+	for _, transaction := range transactions {
+		for index, output := range transaction.TXOutput {
+			if output.CanUnlockUTXOWith(address) {
+				if output.Value <  amount {
+					suitableUTXO[string(transaction.TXID)] = append(suitableUTXO[string(transaction.TXID)], int64(index))
+					total += output.Value
+				} else {
+					break FIND
+				}
+			}
+		}
+	}
 
 	return suitableUTXO, total
 }
