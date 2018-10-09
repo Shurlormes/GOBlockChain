@@ -8,14 +8,12 @@ import (
 
 const usage = `
 	i --address ADDRESS				"init blockChain"
-	a --data DATA 					"add block to blockChain"
 	s --from FROM --to TO --amount AMOUNT 		"send coin AMOUNT from FROM to TO"
 	b --address ADDRESS				"get balance of the address"
 	p 						"print blockChain"
 `
 
 const InitBlockChainCmdString = "i"
-const AddBlockCmdString = "a"
 const PrintChainCmdString = "p"
 const GetBalanceCmdString = "b"
 const SendCoinCmdString = "s"
@@ -38,16 +36,17 @@ func (commandLine *CommandLine) CheckParams() {
 func (commandLine *CommandLine) Run() {
 	commandLine.CheckParams()
 
-	addBlockCmd := flag.NewFlagSet(AddBlockCmdString, flag.ExitOnError)
 	printChainCmd := flag.NewFlagSet(PrintChainCmdString, flag.ExitOnError)
 	initChainCmd := flag.NewFlagSet(InitBlockChainCmdString, flag.ExitOnError)
 	getBalanceCmd := flag.NewFlagSet(GetBalanceCmdString, flag.ExitOnError)
-	//sendCoinCmd := flag.NewFlagSet(SendCoinCmdString, flag.ExitOnError)
+	sendCoinCmd := flag.NewFlagSet(SendCoinCmdString, flag.ExitOnError)
 
-	addBlockParam := addBlockCmd.String("data", "", "block transaction info")
 	initChainParam := initChainCmd.String("address", "", "miner address")
 	getBalanceParam := getBalanceCmd.String("address", "", "miner address")
-	//sendCoinParam := sendCoinCmd.String("address", "", "miner address info")
+
+	sendFromParam := sendCoinCmd.String("from", "", "sender address info")
+	sendToParam := sendCoinCmd.String("to", "", "receiver address info")
+	sendAmountParam := sendCoinCmd.Float64("amount", 0, "send amount info")
 
 	switch os.Args[1] {
 
@@ -61,17 +60,6 @@ func (commandLine *CommandLine) Run() {
 			}
 
 			commandLine.InitBlockChain(*initChainParam)
-		}
-
-	case AddBlockCmdString:
-		err := addBlockCmd.Parse(os.Args[2:])
-		CheckError(err)
-		if addBlockCmd.Parsed() {
-			if *addBlockParam == "" {
-				fmt.Println("addBlock data should not be empty")
-				commandLine.PrintUsage()
-			}
-			commandLine.AddBlock(*addBlockParam)
 		}
 
 	case PrintChainCmdString:
@@ -90,15 +78,30 @@ func (commandLine *CommandLine) Run() {
 				commandLine.PrintUsage()
 			}
 
-			commandLine.getBalance(*getBalanceParam)
+			commandLine.GetBalance(*getBalanceParam)
 		}
 
-	//case SendCoinCmdString:
-	//	err := printChainCmd.Parse(os.Args[2:])
-	//	CheckError(err)
-	//	if printChainCmd.Parsed() {
-	//		commandLine.PrintChain()
-	//	}
+	case SendCoinCmdString:
+		err := sendCoinCmd.Parse(os.Args[2:])
+		CheckError(err)
+		if sendCoinCmd.Parsed() {
+			if *sendFromParam == "" {
+				fmt.Println("from address data should not be empty")
+				commandLine.PrintUsage()
+			}
+
+			if *sendToParam == "" {
+				fmt.Println("to address data should not be empty")
+				commandLine.PrintUsage()
+			}
+
+			if *sendAmountParam == 0 {
+				fmt.Println("amount should not be 0")
+				commandLine.PrintUsage()
+			}
+		}
+
+		commandLine.Send(*sendFromParam, *sendToParam, *sendAmountParam)
 
 	default:
 		commandLine.PrintUsage()

@@ -79,7 +79,6 @@ func NewTransaction(from, to string, amount float64, blockChain *BlockChain) *Tr
 				from,
 			})
 		}
-
 	}
 
 	outputArray = append(outputArray, TXOutput{
@@ -93,7 +92,6 @@ func NewTransaction(from, to string, amount float64, blockChain *BlockChain) *Tr
 			from,
 		})
 	}
-
 
 	tx := Transaction{
 		TXID: []byte{},

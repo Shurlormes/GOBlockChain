@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"encoding/gob"
 	"bytes"
+	"crypto/sha256"
 )
 
 type Block struct {
@@ -76,4 +77,16 @@ func (block *Block) PrintBlock() {
 	//fmt.Printf("Data: %s\n", block.Data)
 	fmt.Printf("Hash: %x\n", block.Hash)
 	fmt.Printf("IsValid: %v\n", NewProofOfWork(block).IsValid())
+}
+
+func (block *Block) HashTransactions() []byte {
+	var txHash [][]byte
+	for _, tx := range block.Transactions {
+		txHash = append(txHash, tx.TXID)
+	}
+
+	data := bytes.Join(txHash, []byte{})
+	hash := sha256.Sum256(data)
+	return hash[:]
+
 }

@@ -106,7 +106,6 @@ func (blockChain *BlockChain) FindUTXOTransaction(address string) []*Transaction
 	it := blockChain.NewIterator()
 	for {
 		block := it.Next()
-
 		for _, transaction := range block.Transactions {
 			if !transaction.IsCoinBaseTransaction() {
 				for _, input := range transaction.TXInput	{
@@ -123,12 +122,11 @@ func (blockChain *BlockChain) FindUTXOTransaction(address string) []*Transaction
 	}
 
 	it = blockChain.NewIterator()
-	OPTIONS:
 	for {
 		block := it.Next()
 
 		for _, transaction := range block.Transactions {
-
+			OPTIONS:
 			for index, output := range transaction.TXOutput	{
 				if spentUTXO[string(transaction.TXID)] != nil {
 					voutArray :=  spentUTXO[string(transaction.TXID)]
@@ -143,7 +141,6 @@ func (blockChain *BlockChain) FindUTXOTransaction(address string) []*Transaction
 					UTXOTransaction = append(UTXOTransaction, transaction)
 				}
 			}
-
 		}
 
 		if len(block.PrevBlockHash) == 0 {
@@ -154,15 +151,15 @@ func (blockChain *BlockChain) FindUTXOTransaction(address string) []*Transaction
 	return UTXOTransaction
 }
 
-func (blockChain *BlockChain) FindUTXO(address string) []*TXOutput {
-	var TXOutputArray []*TXOutput
+func (blockChain *BlockChain) FindUTXO(address string) []TXOutput {
+	var TXOutputArray []TXOutput
 
 	UTXOTransaction := blockChain.FindUTXOTransaction(address)
 
 	for _, tx := range UTXOTransaction {
 		for _, output := range tx.TXOutput {
 			if output.CanUnlockUTXOWith(address) {
-				TXOutputArray = append(TXOutputArray, &output)
+				TXOutputArray = append(TXOutputArray, output)
 			}
 		}
 	}
@@ -181,11 +178,12 @@ func (blockChain *BlockChain) FindSuitableUTXO(address string, amount float64) (
 	var total float64
 
 	transactions := blockChain.FindUTXOTransaction(address)
+
 	FIND:
 	for _, transaction := range transactions {
 		for index, output := range transaction.TXOutput {
 			if output.CanUnlockUTXOWith(address) {
-				if output.Value <  amount {
+				if total < amount {
 					suitableUTXO[string(transaction.TXID)] = append(suitableUTXO[string(transaction.TXID)], int64(index))
 					total += output.Value
 				} else {
@@ -209,5 +207,3 @@ func (blockChain *BlockChain) GetBalance(address string) float64 {
 
 	return balance
 }
-
-
